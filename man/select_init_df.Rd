@@ -7,12 +7,17 @@
 select_init_df(df_raw, days = 21)
 }
 \arguments{
-\item{df_raw}{The raw dataframe containing IV Curve measurement data.}
+\item{df_raw}{The raw dataframe containing request input columns the same as
+the example df_wbw dataset and the column of day, which starts from 1 and column
+of n_period, which is the index of the period, decided by how many days to be
+grouped as one period, the column of day and n_period can be generated from the
+function read_df_raw}
 
 \item{days}{The number of initial days to subsample. Default: 21}
 }
 \value{
-Subset of input dataframe.
+Subset of input dataframe within the first several days decided by the
+input parameter "days".
 }
 \description{
 The power_loss_bat function makes use of a dataframe containing
@@ -21,6 +26,7 @@ that dataframe for the user from the raw dataframe containing IV Curve
 measurement data.
 }
 \examples{
-df_init <- select_init_df(df_wbw, days = 21)
+df <- read_df_raw(df_wbw, 1, 7)
+df_init <- select_init_df(df, days = 21)
 
 }

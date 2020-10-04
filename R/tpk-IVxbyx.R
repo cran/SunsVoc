@@ -4,19 +4,23 @@
 #' This function moves through IV curve data x-by-x,
 #' generating psuedo IV curves and binding them together into the output.
 #'
-#' @param df Dataframe containing IV data. Typically, a raw dataframe prior
-#' to filtering for irradiance/temperature. Within this package environment, use
-#' \code{\link{read_df_raw}} to generate this from a .csv
-#' @param corr_temp The temperature from which to create the correction
-#' factor. Pass the string "median" in order for the function to automatically
-#' calculate the median module temperature at 1 sun irradiance and use it.
-#' @param N_c Number of Cells in series; the total number of cells in the system.
+#' @param df Dataframe containing IV data. Typically, a raw dataframe after
+#' filtering by current accuracy based on plot of irradiance vs. temperature.
+#' Within this package environment, use
+#' \code{\link{read_df_raw}} to filter the dataset and generate period index.
+#' @param corr_temp The temperature for all I-V features to standardize to.
+#' Pass the string "median" in order for the function to automatically
+#' calculate the median module temperature at 1 sun irradiance and use it,
+#' or input a number directly, the temperature unit should be Celsius.
+#' @param N_c Number of cells in series; the total number of cells in the system.
 #'
-#' @return Psuedo-IV Curve data (dataframe) grouped from time periods of set length.
+#' @return Psuedo-IV Curve data with features extracted and evaluation parameters
+#' of fitting grouped by time periods of set length.
 #'
 #' @examples
 #' \donttest{
-#' df_full <- IVXbyX(df_wbw, corr_temp = "median", 4)
+#' df <- read_df_raw(df_wbw,0.02,7)
+#' df_full <- IVXbyX(df, corr_temp = "median", 60)
 #'}
 #'
 #' @importFrom rlang .data

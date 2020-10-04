@@ -1,16 +1,16 @@
 # handle function to obtain the 1sun Isc value
 #' Obtain 1-sun Isc Value
 #'
-#' This function is used internally by IVwbyw and others for the
+#' This function is used internally by IVxbyx and others for the
 #' calculation of 1-sun Isc values based on Isc and Irradiance measurements.
 #'
 #' @param isc Isc values
-#' @param Irrad Ir radiance values
+#' @param Irrad Irradiance values
 #'
-#' @return Returns a calculated Isc value at 1-sun of Irradiance.
+#' @return Returns a calculated Isc value at 1-sun Irradiance.
 #'
 #' @examples
-#' isc_1sun <- isc.1sun(df_wbw$ishc, df_wbw$poay)
+#' isc_1sun <- isc.1sun(df_wbw$isc, df_wbw$poa)
 #'
 #' @importFrom stats predict
 #' @export

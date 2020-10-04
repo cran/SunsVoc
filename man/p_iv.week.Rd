@@ -2,38 +2,38 @@
 % Please edit documentation in R/tpk-piv_iv_week.R
 \name{p_iv.week}
 \alias{p_iv.week}
-\title{Obtain Psuedo IV Curve for given week}
+\title{Obtain Psuedo IV Curve and other predicted IV features at reference conditions for
+a given week, used internally in IVxbyx function.}
 \usage{
-p_iv.week(df, temp, alpha = 0.5, N_c, isc_1sun = NULL)
+p_iv.week(df, temp, N_c, isc_1sun = NULL)
 }
 \arguments{
-\item{df}{A dataframe containing IV curve data.}
+\item{df}{A dataframe containing timeseries I-V features of one period.}
 
-\item{temp}{The temperature at which the data was obtained}
-
-\item{alpha}{Parameter for "emp" and "val" methods.}
+\item{temp}{The reference module temperature to correct the Psuedo IV curve to be,
+unit of the temperature should be Celsius.}
 
 \item{N_c}{Number of cells in series. Equal to the total number of cells in the system.}
 
-\item{isc_1sun}{(optional) Input a Isc 1-Sun value manually. Leave NULL to have one generated
+\item{isc_1sun}{(optional) Input an Isc 1-Sun value manually. Leave NULL to have one generated
 from the dataframe.}
 }
 \value{
-Psuedo-IV Curve data (dataframe) for a single, given week.
+Psuedo-IV Curve data with features extracted and evaluation parameters
+of fitting grouped for a single, given period.
 }
 \description{
-Obtain Psuedo IV Curve for given week
+Obtain Psuedo IV Curve and other predicted IV features at reference conditions for
+a given week, used internally in IVxbyx function.
 }
 \examples{
-df_slice <- dplyr::filter(df_wbw, df_wbw$n_period == 1)
-
+df <- read_df_raw(df_wbw,0.02,7)
+df_slice <- dplyr::filter(df, df$n_period == 1)
 # Check that this has enough data! needs more than 10 rows to be meaningful
 nrow(df_slice)
-
 # needs median temperature
 temp <- median_temp(df_wbw)
-
-res <- p_iv.week(df_slice, temp = temp, N_c = 4)
+res <- p_iv.week(df_slice, temp = temp, N_c = 60)
 
 
 }

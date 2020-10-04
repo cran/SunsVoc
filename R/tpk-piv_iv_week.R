@@ -1,53 +1,55 @@
 
-# handle function to obtain pseudo I-V curve given a week (or more) of data
+# Handle function to obtain pseudo I-V curve and other predicted IV features
+# at reference conditions given a week (or more) of data
 
-#' Obtain Psuedo IV Curve for given week
+#' Obtain Psuedo IV Curve and other predicted IV features at reference conditions for
+#' a given week, used internally in IVxbyx function.
 #'
-#' @param df A dataframe containing IV curve data.
-#' @param temp The temperature at which the data was obtained
-#' @param alpha Parameter for "emp" and "val" methods.
+#' @param df A dataframe containing timeseries I-V features of one period.
+#' @param temp The reference module temperature to correct the Psuedo IV curve to be,
+#' unit of the temperature should be Celsius.
 #' @param N_c Number of cells in series. Equal to the total number of cells in the system.
-#' @param isc_1sun (optional) Input a Isc 1-Sun value manually. Leave NULL to have one generated
+#' @param isc_1sun (optional) Input an Isc 1-Sun value manually. Leave NULL to have one generated
 #' from the dataframe.
 #'
-#' @return Psuedo-IV Curve data (dataframe) for a single, given week.
+#' @return Psuedo-IV Curve data with features extracted and evaluation parameters
+#' of fitting grouped for a single, given period.
 #'
 #' @examples
-#' df_slice <- dplyr::filter(df_wbw, df_wbw$n_period == 1)
-#'
+#' df <- read_df_raw(df_wbw,0.02,7)
+#' df_slice <- dplyr::filter(df, df$n_period == 1)
 #' # Check that this has enough data! needs more than 10 rows to be meaningful
 #' nrow(df_slice)
-#'
 #' # needs median temperature
 #' temp <- median_temp(df_wbw)
-#'
-#' res <- p_iv.week(df_slice, temp = temp, N_c = 4)
+#' res <- p_iv.week(df_slice, temp = temp, N_c = 60)
 #'
 #'
 #' @importFrom rlang .data
 #' @importFrom magrittr %<>%
 #' @import dplyr
 #' @export
-p_iv.week <- function(df, temp, alpha = 0.5, N_c, isc_1sun = NULL){
+p_iv.week <- function(df, temp, N_c, isc_1sun = NULL){
 
   # create new cols for fitting
   df <- df %>%
-    dplyr::filter(.data$ishc > 1e-3)
+    dplyr::filter(.data$isc > 1e-3)
 
   # The physical model
   df <- df %>% mutate(T_K = .data$modt + 273.15,
-                      lnSun = 1.38e-23/1.6e-19 * N_c * .data$T_K * log(.data$ishc),
-                      T_lnIsc2 = .data$lnSun * log(.data$ishc),
-                      exrs = as.numeric(.data$exrs),
-                      expVoc = exp(-.data$vocc/.data$T_K) / .data$ishc,
-                      I0 = (N_c * 1.38e-23 * .data$T_K) / (1.6e-19 * .data$ishc)) # scaling for lm fit
+                      lnSun = 1.38e-23/1.6e-19 * N_c * .data$T_K * log(.data$isc),
+                      isc2 = .data$isc^2,
+                      T_lnIsc2 = .data$T_K * .data$lnSun * log(.data$isc),
+                      rs = as.numeric(.data$rs),
+                      expVoc = exp(-.data$voc/.data$T_K) / .data$isc,
+                      I0 = (N_c * 1.38e-23 * .data$T_K) / (1.6e-19 * .data$isc)) # scaling for lm fit
 
   # select data that has non nan or inf Tln(Ir) values
   df %<>% filter(!(is.na(.data$lnSun) | is.infinite(.data$lnSun)))
 
   if (is.null(isc_1sun)) {
     # obtain 1sun isc
-    isc_1sun <- isc.1sun(df$ishc, df$poay)
+    isc_1sun <- isc.1sun(df$isc, df$poa)
   }
 
   # correct voc by temperature and construct pseudo I-V curve
@@ -64,22 +66,23 @@ p_iv.week <- function(df, temp, alpha = 0.5, N_c, isc_1sun = NULL){
     # obtain predicted voc value at 1000 W/m2 (with 1 sun isc)
     # and given temperature
     df_piv <- data.frame(voc_corr = voc_corr,
-                         ishc = df$ishc)
+                         isc = df$isc)
 
   # modeling Imp and Vmp
-    mod_imp <- stats::lm(eimp ~ eisc*modt, data = df)
-    mod_vmp <- stats::lm(evmp ~ lnSun + T_lnIsc2 + modt, data = df)
+    mod_imp <- stats::lm(imp ~ isc:modt + isc2:modt + isc + isc2, data = df)
+    mod_vmp <- stats::lm(vmp ~ lnSun + T_lnIsc2 + modt, data = df)
     # modeling Rs
-    mod_rs <- stats::lm(exrs ~ I0, data = filter(df, .data$ishc > 2 & .data$ishc < 10))
+    mod_rs <- stats::lm(rs ~ I0, data = filter(df, .data$isc > 2 & .data$isc < 10))
 
     ln_1Sun = 1.38e-23/1.6e-19*N_c*(temp+273.15)*log(isc_1sun)
     #predict imp and vmp for 1sun and given temp
     imp_fit <- stats::predict(mod_imp,
-                       newdata = data.frame(eisc = isc_1sun, modt = temp))
+                       newdata = data.frame(isc = isc_1sun, isc2 = isc_1sun^2, modt = temp))
     vmp_fit <- stats::predict(mod_vmp,
                        newdata = data.frame(lnSun = ln_1Sun,
-                                            T_lnIsc2 = ln_1Sun * log(isc_1sun),
-                                            modt = temp))
+                                            modt = temp,
+                                            T_lnIsc2 = (temp + 273.15) * ln_1Sun * log(isc_1sun)
+                                            ))
     res_vmp <- summary(mod_vmp)
     vmp_rmse <- sqrt(mean(mod_vmp$residuals ^ 2))
     pmp_fit <- imp_fit * vmp_fit

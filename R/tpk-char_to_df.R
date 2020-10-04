@@ -1,24 +1,15 @@
 
 #' Convert From Hbase Char String to Dataframe
 #'
-#' Hbase saves some data automatically as a long string in a column
-#' of a dataframe. This function parses this string and creates
-#' an additional dataframe from it.
+#' This function parses the I-V curve string and creates
+#' an additional dataframe with current and voltage columns from it.
 #'
 #' @param str The character string to be converted to a Dataframe.
 #'
 #' @return Dataframe containing IV curve data.
 #'
 #' @examples
-#' \donttest{
-#' # generate Psuedo-IV Curves
-#' df_full <- IVXbyX(df_wbw, corr_temp = "median", 4)
-#'
-#' # subset a single row
-#' degr_row <- df_full[1,]
-#'
-#' degr_piv <- char_to_df(degr_row$piv)
-#' }
+#' char_to_df(df_wbw$ivdf[1])
 #'
 #' @export
 char_to_df <- function(str){

@@ -13,19 +13,10 @@ char_to_df(str)
 Dataframe containing IV curve data.
 }
 \description{
-Hbase saves some data automatically as a long string in a column
-of a dataframe. This function parses this string and creates
-an additional dataframe from it.
+This function parses the I-V curve string and creates
+an additional dataframe with current and voltage columns from it.
 }
 \examples{
-\donttest{
-# generate Psuedo-IV Curves
-df_full <- IVXbyX(df_wbw, corr_temp = "median", 4)
-
-# subset a single row
-degr_row <- df_full[1,]
-
-degr_piv <- char_to_df(degr_row$piv)
-}
+char_to_df(df_wbw$ivdf[1])
 
 }

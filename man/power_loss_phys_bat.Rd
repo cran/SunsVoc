@@ -4,7 +4,7 @@
 \alias{power_loss_phys_bat}
 \title{Physical Model Power Loss Modes}
 \usage{
-power_loss_phys_bat(df_iv, init_df, corr_T = "median", N_c)
+power_loss_phys_bat(df_iv, init_df, corr_T = 40, N_c, ddiv_param = 0.06)
 }
 \arguments{
 \item{df_iv}{Dataframe containing psuedo-IV curves. Generate with \code{\link{IVXbyX}}.}
@@ -13,27 +13,24 @@ power_loss_phys_bat(df_iv, init_df, corr_T = "median", N_c)
 Generate with \code{\link{select_init_df}}}
 
 \item{corr_T}{The temperature from which to create the correction
-factor. Pass the string "mean" in order for the function to automatically
-calculate the mean temperature and use it.}
+factor. Pass only numeric values.}
 
 \item{N_c}{Number of cells in series; The total number of cells in the system.}
+
+\item{ddiv_param}{Parameter passed to ddiv::IVfeature for 'crtvalb'}
 }
 \value{
 dataframe containing information about power loss due to various power loss modes
 }
 \description{
-This function decouples power loss to different loss modes, specifically I mismatch,
+This function decouples power loss to different loss modes, specifically current mismatch,
 recombination, uniform current loss, and Rs loss, from the changes in IV features.
 }
 \examples{
 \donttest{
-df_full <- IVXbyX(df_wbw, corr_temp = "median", 4)
-
-df_init <- select_init_df(df_wbw, days = 21)
-
-T_corr <- median_temp(df_wbw)
-
-res <- power_loss_phys_bat(df_full, df_init, corr_T = T_corr, N_c = 4);
+df <- read_df_raw(df_wbw,0.02,7)
+df_init <- select_init_df(df, days = 21)
+df_full <- IVXbyX(df, corr_temp = 30, 60)
+res <- power_loss_phys_bat(df_full, df_init, corr_T = 30, N_c = 60)
 }
-
 }

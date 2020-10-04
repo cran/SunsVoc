@@ -7,13 +7,14 @@
 median_temp(df)
 }
 \arguments{
-\item{df}{Dataframe containing IV Curve data (make sure it includes temperature).}
+\item{df}{Dataframe containing timeseries irradiance (column name must be poa)
+and module temperature (column name must be modt) in unit of Celsius.}
 }
 \value{
-Returns an integer value of median reported temperature in the data.
+Returns an integer value of median reported module temperature of the data.
 }
 \description{
-This function calculates the median temperature throughout the data
+This function calculates the median module temperature throughout the data
 to be used in corrections.
 }
 \examples{

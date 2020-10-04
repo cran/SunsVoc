@@ -9,16 +9,16 @@ isc.1sun(isc, Irrad)
 \arguments{
 \item{isc}{Isc values}
 
-\item{Irrad}{Ir radiance values}
+\item{Irrad}{Irradiance values}
 }
 \value{
-Returns a calculated Isc value at 1-sun of Irradiance.
+Returns a calculated Isc value at 1-sun Irradiance.
 }
 \description{
-This function is used internally by IVwbyw and others for the
+This function is used internally by IVxbyx and others for the
 calculation of 1-sun Isc values based on Isc and Irradiance measurements.
 }
 \examples{
-isc_1sun <- isc.1sun(df_wbw$ishc, df_wbw$poay)
+isc_1sun <- isc.1sun(df_wbw$isc, df_wbw$poa)
 
 }

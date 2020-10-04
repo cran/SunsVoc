@@ -1,7 +1,7 @@
 Package: SunsVoc
 Type: Package
 Title: Constructing Suns-Voc from Outdoor Time-Series I-V Curves
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(person("Menghong", "Wang", email="mxw477@case.edu",
                     role=c("aut"), comment = c(ORCID = "0000-0001-7349-699X")),
             person("Tyler J.", "Burleyson", email="tjb152@case.edu",
@@ -10,6 +10,8 @@ Authors@R: c(person("Menghong", "Wang", email="mxw477@case.edu",
                     role=c("aut"), comment = c(ORCID = "0000-0003-2016-4160")),
             person("Alan J.", "Curran", email="ajc269@case.edu",
                     role=c("aut"), comment = c(ORCID = "0000-0002-4505-8359")),
+            person("Abdulkerim", "Gok", email="axg515@case.edu",
+                    role=c("aut","ctb"), comment = c(ORCID = "0000-0003-3433-7106")),
             person("Eric J.", "Schneller", email="eschneller@knights.ucf.edu",
                     role=c("aut"), comment = c(ORCID = "0000-0002-2104-0066")),
             person("Kristopher O.", "Davis", email="Kristopher.Davis@ucf.edu",
@@ -24,7 +26,7 @@ Description:
     diode of photovoltaic cells without the effect of series resistance.
     Here, Suns-Voc curves can be constructed with outdoor time-series I-V
     curves [1,2,3] of full-size photovoltaic (PV) modules instead of having to be measured in the lab.
-    Time series of four different power loss modes can be calculated based on obtained Suns-Voc curves.
+    Time series of four different power loss modes can be calculated based on obtained Isc-Voc curves.
     This material is based upon work supported by the U.S. Department of
     Energy's Office of Energy Efficiency and Renewable Energy (EERE) under
     Solar Energy Technologies Office (SETO) Agreement Number DE-EE0008172. 
@@ -42,20 +44,21 @@ Description:
 License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Depends: R (>= 3.5.0)
 Imports: ddiv, magrittr, stringr, dplyr, purrr, data.table, rlang
 Suggests: testthat (>= 2.1.0), knitr, rmarkdown, ggplot2
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2020-06-26 15:53:26 UTC; tylerb
+Packaged: 2020-10-03 22:03:56 UTC; tylerb
 Author: Menghong Wang [aut] (<https://orcid.org/0000-0001-7349-699X>),
   Tyler J. Burleyson [aut, cre] (<https://orcid.org/0000-0002-6356-5354>),
   Jiqi Liu [aut] (<https://orcid.org/0000-0003-2016-4160>),
   Alan J. Curran [aut] (<https://orcid.org/0000-0002-4505-8359>),
+  Abdulkerim Gok [aut, ctb] (<https://orcid.org/0000-0003-3433-7106>),
   Eric J. Schneller [aut] (<https://orcid.org/0000-0002-2104-0066>),
   Kristopher O. Davis [aut] (<https://orcid.org/0000-0002-5772-6254>),
   Jennifer L. Braid [aut] (<https://orcid.org/0000-0002-0677-7756>),
   Roger H. French [aut, cph] (<https://orcid.org/0000-0002-6162-0532>)
 Repository: CRAN
-Date/Publication: 2020-06-29 10:40:03 UTC
+Date/Publication: 2020-10-04 04:10:03 UTC

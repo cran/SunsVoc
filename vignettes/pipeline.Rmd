@@ -11,62 +11,63 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 9,
+  fig.height = 5
 )
 ```
+
+### What Does the `SunsVoc` package do? 
+With the `SunsVoc` package, Isc-Voc curves can be constructed with outdoor time-series I-V curves of photovoltaic (PV) modules instead of having to be measured in the lab. Suns-Voc (or Isc-Voc) curves can provide the current-voltage (I-V) characteristics of the diode of photovoltaic cells without the effect of series resistance. Time series of four different power loss modes; namely, uniform current, recombination, series resistance, and current mismatch, can be calculated based on obtained Isc-Voc curves. The details for the analysis method can be found in [Wang et al. 2020](https://ieeexplore.ieee.org/document/9121299/).
+
+### Loading the package
 
 ```{r setup}
 library(SunsVoc)
 ```
 
-### Read in Data ###
-Data is read in from a .csv file and marked into daily increments.
+#### The Data Format ####
+The imported data should have the following columns: a string containing the IV curve for each timestamp, extracted features from the `ddiv` package's `IVFeatures` function run on individual IV curves, Voc and Isc readings from any source (if available), Plane of Array (POA) irradiance and module temperature (in Celsius) readings, and a timestamp. If you have Global Horizontal Irradiance (GHI) instead of POA, convert it first to POA. This can be done using the Python package PVLib, using the latitude, longitude, and elevation parameters of the installation site. 
 
-#### What Data Should Look Like ####
-The imported Data should have columns reflecting results from the ddiv package IVFeatures command run on individual IV curves, Voc and Isc readings from any source (if possible), a string containing the IV curve for each timestamp, poay and temperature readings for the correct timestamp, and a timestamp. All column names should be in an explicit convention.
+Use the following variable names in order to ensure the package processes your data correctly:
 
-Use the ddiv package's command IVFeatures to extract features from individual IV curves. See package documentation for ddiv on how to use this function (note that ddiv requires the segmented package, among others). Rename columns according to the standards below. Note that ddiv returns a list, so it's a good idea to pass it's results to data.frame
+Deprecated Name              Column name                    Unit/Standard      Format (if applicable)
+----------------------      --------------------------     ---------------     -------------------------
+Time stamp                  tmst                           Local               yyyy-mm-dd hh:mm:ss
+Module temperature          modt                           $^\circ$C                  --
+Plane of array irradiance   poa                            W/m^2^                     --
+Open circuit voltage        voc                            V                          -- 
+Short circuit current       isc                            A                          --
+Voltage at max. power       vmp                            V                          --
+Current at max. power       imp                            A                          --
+Max. power point            pmp                            W                          --
+Series resistance           rs                             $\Omega$                   -- 
 
-If your IV Tracer returns Voc and Isc readings, be sure to include them with column names 'vocc' and 'ishc'. If not, rename the 'Voc' and 'Isc' from the ddiv results to 'vocc' and 'ishc'. 
+These are the key variable names. Look at the example data below to see other variable names. The extracted features obtained with `ddiv` should have the correct names when they are extracted.
 
-To obtain the string containing an IV curve, use the df2chr function included in this package. Make sure your IV curves are in a dataframe containing voltage and current columns (in that order). it doesn't matter what the columns are named.
+Note that the timestamp in each column must match the IV curve with it. 
 
-Be sure to add the POA and module temperature (in celsius) data as well. If you have GHI instead of poay, convert it first to POA. This can be done using the Python package PVLib, using latitude, longitude, and elevation. 
-
-The timestamp in each column must match the IV curve with it. 
-
-Use the following variable names in order to ensure th package processes your data correctly:
-
-Deprecated Name           HBase Name                     Unit/Standard          
-----------------------   --------------------------     ---------------        
-Fill Factor               ffff                           %
-Open Circuit Voltage      vocc                           V
-Short Circuit Current     ishc                           A
-Max Power Voltage         vmpp                           V
-Max Power Current         impp                           A
-Max Power Point           pmpp                           W
-
-These are the key variable names -- look at the example data below to see other names. The extracted features obtained with ddiv should have the correct names when they are extracted.
-
-
-It is recommended that the period (the third parameter below) be chosen so that each psuedo-IV curve has 300 points or more. In order to achieve, this make sure there are at least 300 Isc and Voc pairs in each period. 10 minute intervals of collection is generally good for 7 days.
 ```{r}
 # below is the function used to read in our csv
 # df_wbw <- read_df_raw_from_csv('../../data/sa42589-albsf_full_ddiv.csv', 0, 7)
 
 colnames(df_wbw)
+
 ```
 
-The POA column is converted from the measured ghir.
 
+### Extracting I-V Features with the `ddiv` Package ###
 
-### Extracting I-V features with ddiv ###
+Use the `ddiv` package's `IVfeatures` function to extract features from individual IV curves. See [package documentation](https://CRAN.R-project.org/package=ddiv) for `ddiv` on how to use this function (note that `ddiv` requires the `segmented` package, among others). Note that `ddiv` returns a list, so it's a good idea to pass its results to a dataframe.
 
-```{r, warning=FALSE}
+```{r eval=FALSE, warning=FALSE}
+# Load required packages
 library(dplyr)
 library(purrr)
 library(magrittr)
 library(ddiv)
+
+# I-V curve feature extraction using the IVfeature function
 str_ddiv <- function(iv_str, pb) {
   iv <- char_to_df(iv_str)
   # initialize result for when IVfeature encounters an error
@@ -76,15 +77,15 @@ str_ddiv <- function(iv_str, pb) {
                        "Vmp" = NA, "FF" = NA)
 
   # calculate ddiv with error trapping
-  res <- df <- tryCatch(
+  res <- tryCatch(
     as.data.frame(IVfeature(I = iv$I, V = iv$V, num = 200, crt = 0.1, crtvalb = 0.2)),
     error = function(e) err_df
   )
-
   pb$tick()$print()
   return(res)
 }
 
+# Batch processing of I-V curves for feature extraction
 batch_ddiv <- function(df) {
   iv_list <- df$ivdf 
   pb <- dplyr::progress_estimated(length(iv_list))
@@ -93,34 +94,44 @@ batch_ddiv <- function(df) {
   return(res)
 }
 
-# it is recommended to test on a small number of iv curves
-# to tweak the input parameters of ddiv::IVfeature function
+# It is recommended to test on a small number of I-V curves 
+# to tweak the input parameters of the IVfeature function
 test <- sample_n(df_wbw, 5)
 ddiv_test <- batch_ddiv(test)
-colnames(ddiv_test) <- c("tmst", "eisc", "ersh", "evoc", "exrs", "epmp", "eimp", "evmp", "exff" )
+colnames(ddiv_test) <- c("tmst", "isc", "rsh", "voc", "rs", "pmp", "imp", "vmp", "ff" )
 
-# bind ddiv result with original dataframe
+# Bind the ddiv result with the original dataframe
+test_res <- full_join(test[,c(1,3:4)], ddiv_test[,c(1:2,4:8)])
 
-test_res <- full_join(test, ddiv_test)
-
+# See the column names of the extracted features
 colnames(test_res)
 
 ```
 
-Data from a narrow range of temperature and irradiance values are needed at one point for calculating various values. Create it now.
-```{r}
 
+### Prerequisites for the Power Loss Mode Analysis ###
+
+It is helpful to know the median temperature of the studied PV module prior to the analysis. The `df_wbw` is the example dataset in the package. A method for median temperature determination is included as follows:
+
+```{r}
 T_corr <- median_temp(df_wbw)
 
 T_corr
 
 ```
 
-Lastly, the power_loss_bat function, which deals with power loss modes, requires a subset of the larger dataframe. Use select_init_df to do this.
+It is recommended that the analysis period be chosen so that each psuedo-IV curve has at least 300 points. In order to achieve this, make sure that there are at least 300 Isc and Voc pairs in each period. 10-minute intervals of collection is generally good for 7 days.
+
+Lastly, the `power_loss_bat` function, which deals with power loss modes, requires a subset of the larger dataframe. Use the `select_init_df` function to do this. The input dataframe for both `select_init_df` and `IVXbX` functions would be better to be filtered according to the current accuracy of the tracing equipment and have the rows with NAs in the `modt` and `pmp` variables removed.
+
 ```{r}
+# Read the raw data with tracer accuracy for filtering and time period for pseudo I-V curves
+df <- read_df_raw(df_wbw, tracer_accuracy = 0.02, t_period = 7)
 
-df_init <- select_init_df(df_wbw, days = 21)
+# Subset the data for the first 21 days
+df_init <- select_init_df(df, days = 21) 
 
+# See the column names of the initial dataframe
 colnames(df_init)
 ```
 
@@ -128,43 +139,47 @@ colnames(df_init)
 
 ### Psuedo-IV Curve Generation ###
 
-This functionality is handled by a master function which calls a variety of subfunctions. IVXbyX creates the Psuedo-IV Curves.
+Psuedo-IV Curve generation is handled by a master function called `IVXbyX` which calls a variety of subfunctions. 
 
 ```{r}
+# Psuedo-IV curve generation 
+df_full <- IVXbyX(df, corr_temp = T_corr, N_c= 60)
 
-df_full <- IVXbyX(df_wbw, corr_temp = "median", 4)
-
+# See the column names of the generated data
 colnames(df_full)
 ```
 
 
 ### Power Loss Modes ###
-```{r}
-res <- power_loss_phys_bat(df_full, df_init, corr_T = T_corr, N_c = 4);
 
-# Generate Table
+The `power_loss_phys_bat` function is finally used to calculate the power loss modes: losses due to uniform current, recombination, series resistance, and current mismatch.  
+
+```{r}
+# Power loss mode calculation
+res <- power_loss_phys_bat(df_full, df_init, corr_T = T_corr, N_c = 60) 
+
+# Generate an example table for power loss modes
 knitr::kable(res[1:5, ], caption = "Power Loss Modes")
 ```
 
-### Visualization of power loss modes 
 
-```{r}
+### Visualization of the Power Loss Modes 
+
+Visualization of the result can be done using the `ggplot2` package.
+
+```{r }
 library(ggplot2)
 ggplot(data = res, aes(x = date)) +
   geom_point(aes(y = uni_I, color = "Uniform current", shape = "Uniform current"), size = 2) +
-  geom_point(aes(y = rec, color = "Recombination", shape = "Recombination"), size = 2) +
+  geom_point(aes(y = rec, color = "Recombination",  shape = "Recombination"), size = 2) +
   geom_point(aes(y = rs, color = "Rs loss", shape = "Rs loss"),  size = 2) +
   geom_point(aes(y = I_mis, color = "I mismatch", shape = "I mismatch"), size = 2) +
-  ylab(expression(paste(Delta, "Power (W)"))) +
-  xlab("Date") +
+  ylab(expression(paste(Delta, "Power (W)"))) + xlab("Date") +
   theme_bw() +
-  theme(axis.text = element_text(size = 12),
-        axis.title = element_text(size = 12),
-        legend.text = element_text(size = 10),
-        legend.position = "top") +
-  scale_shape_manual(values = c(4, 8, 17, 16),
-                     name = "Power loss \n mode") +
+  theme(axis.text = element_text(size = 12), axis.title = element_text(size = 12),
+        legend.text = element_text(size = 10), legend.position = "top") +
+  scale_shape_manual(values = c(4, 8, 17, 16), name = "Power loss \n mode") +
   scale_colour_discrete(name = "Power loss \n mode") 
-
 ```
+
 
