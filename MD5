@@ -1,4 +1,4 @@
-70c953c23c0eb6df2eb098059632337c *DESCRIPTION
+6eacc6d5019687757b9a150fc1a9e9f8 *DESCRIPTION
 49a24d571cbda1f100d348c38c2b46dd *LICENSE
 c93cbcb789eeb7740860f04fc16c1b7c *NAMESPACE
 ed8e1e33669edfbccf8a1f88c39d661c *R/data.R
@@ -11,11 +11,11 @@ de48e00ded9073d9a1ba145b99d4bd02 *R/tpk-median_temp.R
 146609bdf11702143afb5e86670aebb7 *R/tpk-power_loss-phys.R
 cd63fb35f3987e57647a5e08c2b9e7fc *R/tpk-read_data.R
 e51a6b5c0160319886753b9b36cbaee1 *R/tpk-voc_corr.R
-bce76acce57352b9f0976fbc3e63e0e2 *build/vignette.rds
+6787f3cafcb8d96337efeb04cd26d837 *build/vignette.rds
 be447d6f7748d401b37a8832990aa3da *data/df_wbw.rda
 affceb84d3aab39550858782c6da6234 *inst/doc/pipeline.R
 2723fa1aedee72380294f2cec8420c16 *inst/doc/pipeline.Rmd
-06886b878cf832a7b5efc8c9c50d4d11 *inst/doc/pipeline.html
+8c5b49045535cc3f02303dcf36f85003 *inst/doc/pipeline.html
 2b3b9a5977a7700d2c4151ba543f9c52 *man/IVXbyX.Rd
 cc8cb3c5a5fe98ae6abf2ff9dea531c0 *man/char_to_df.Rd
 e83c395a33b94f2e9710d45433c88de3 *man/df2chr.Rd

@@ -1,7 +1,7 @@
 Package: SunsVoc
 Type: Package
 Title: Constructing Suns-Voc from Outdoor Time-Series I-V Curves
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(person("Menghong", "Wang", email="mxw477@case.edu",
                     role=c("aut"), comment = c(ORCID = "0000-0001-7349-699X")),
             person("Tyler J.", "Burleyson", email="tjb152@case.edu",
@@ -44,13 +44,14 @@ Description:
 License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 LazyData: true
+LazyDataCompression: xz
 RoxygenNote: 7.1.1
 Depends: R (>= 3.5.0)
 Imports: ddiv, magrittr, stringr, dplyr, purrr, data.table, rlang
 Suggests: testthat (>= 2.1.0), knitr, rmarkdown, ggplot2
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2020-10-03 22:03:56 UTC; tylerb
+Packaged: 2021-04-29 15:48:04 UTC; tylerb
 Author: Menghong Wang [aut] (<https://orcid.org/0000-0001-7349-699X>),
   Tyler J. Burleyson [aut, cre] (<https://orcid.org/0000-0002-6356-5354>),
   Jiqi Liu [aut] (<https://orcid.org/0000-0003-2016-4160>),
@@ -61,4 +62,4 @@ Author: Menghong Wang [aut] (<https://orcid.org/0000-0001-7349-699X>),
   Jennifer L. Braid [aut] (<https://orcid.org/0000-0002-0677-7756>),
   Roger H. French [aut, cph] (<https://orcid.org/0000-0002-6162-0532>)
 Repository: CRAN
-Date/Publication: 2020-10-04 04:10:03 UTC
+Date/Publication: 2021-04-30 09:30:06 UTC
